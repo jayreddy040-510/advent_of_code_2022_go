@@ -54,12 +54,16 @@ func maxGroupSum(filename string) int {
 	}
     sort.Ints(allSums)
 
-    return allSums[len(allSums) - 1] + allSums[len(allSums) - 2] + allSums[len(allSums) - 3]
+    return allSums[len(allSums) - 1] + allSums[len(allSums) - 2] + 
+    allSums[len(allSums) - 3]
 }
 
 func main() {
+
 	filename := "elves_and_their_calories.txt"
-	fmt.Printf("The sorted sums are %v\n", maxGroupSum(filename))
+
+	fmt.Printf("The sum of the 3 highest calorie groups are %v\n",
+    maxGroupSum(filename))
 }
 
 
