@@ -45,7 +45,7 @@ func main() {
 
     dataString := string(data)
 
-    rucksackSlice := strings.Split(strings.Trim(dataString, "\n"), "\n")
+    rucksackSlice := strings.Split(dataString, "\n")
 
     for _, sack := range rucksackSlice {
         firstCompartmentContents := make(map[rune]bool)
@@ -54,7 +54,9 @@ func main() {
                 firstCompartmentContents[char] = true
             } else {
                 if firstCompartmentContents[char] {
+                    // fmt.Println(string(char), prioMap[char])
                     returnSum += prioMap[char]
+                    break
                 }
             }
         }
