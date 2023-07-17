@@ -1,67 +1,45 @@
 package main
 
 import (
-    "fmt"
-    "strings"
-    "os"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/jayreddy040-510/advent_of_code_2022_go/day_3/utils"
 )
 
 func check(e error) {
-    if e != nil {
-        panic(e)
-    }
-}
-
-func makePrioMaps() (map[rune]int) {
-
-    prioMap := make(map[rune]int)
-    
-    x := 'a'
-    y := 1
-
-    for y <= 26 {
-        prioMap[x] = y
-        x += 1
-        y += 1
-    }
-
-    x = 'A'
-
-    for y <= 52 {
-        prioMap[x] = y
-        x += 1
-        y += 1
-    }
-
-    return prioMap
+	if e != nil {
+		panic(e)
+	}
 }
 
 func main() {
 
-    prioMap := makePrioMaps()
-    returnSum := 0
-    data, err := os.ReadFile("puzzle_input.txt")
-    check(err)
+	prioMap := rucksackutils.MakePrioMaps()
+	returnSum := 0
+	data, err := os.ReadFile("puzzle_input.txt")
+	check(err)
 
-    dataString := string(data)
+	dataString := string(data)
 
-    rucksackSlice := strings.Split(dataString, "\n")
+	rucksackSlice := strings.Split(dataString, "\n")
 
-    for _, sack := range rucksackSlice {
-        firstCompartmentContents := make(map[rune]bool)
-        for i, char := range sack {
-            if i < len(sack)/2 {
-                firstCompartmentContents[char] = true
-            } else {
-                if firstCompartmentContents[char] {
-                    // fmt.Println(string(char), prioMap[char])
-                    returnSum += prioMap[char]
-                    break
-                }
-            }
-        }
-    }
+	for _, sack := range rucksackSlice {
+		firstCompartmentContents := make(map[rune]bool)
+		for i, char := range sack {
+			if i < len(sack)/2 {
+				firstCompartmentContents[char] = true
+			} else {
+				if firstCompartmentContents[char] {
+					// fmt.Println(string(char), prioMap[char])
+					returnSum += prioMap[char]
+					break
+				}
+			}
+		}
+	}
 
-    fmt.Println(returnSum)
+	fmt.Println(returnSum)
 
 }
