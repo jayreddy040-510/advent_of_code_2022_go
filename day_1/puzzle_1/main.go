@@ -5,7 +5,6 @@ import (
     "os"
 	"strconv"
 	"strings"
-    "sort"
 )
 
 func check(e error) {
@@ -26,9 +25,6 @@ func maxGroupSum(filename string) int {
 
 	// Initialize maximum sum
 	maxSum := 0
-    
-    // Initialize slice of group counts
-    var allSums []int
 
 	// Iterate over the groups
 	for _, group := range groups {
@@ -45,25 +41,17 @@ func maxGroupSum(filename string) int {
 			groupSum += num
 		}
 
-        allSums = append(allSums, groupSum)
-
 		// Update maximum sum if necessary
 		if groupSum > maxSum {
 			maxSum = groupSum
 		}
 	}
-    sort.Ints(allSums)
 
-    return allSums[len(allSums) - 1] + allSums[len(allSums) - 2] + 
-    allSums[len(allSums) - 3]
+	return maxSum
 }
 
 func main() {
-
-	filename := "elves_and_their_calories.txt"
-
-	fmt.Printf("The sum of the 3 highest calorie groups are %v\n",
-    maxGroupSum(filename))
+	filename := "../elves_and_their_calories.txt"
+	fmt.Printf("The maximum group sum is %d\n", maxGroupSum(filename))
 }
-
 

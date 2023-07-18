@@ -49,7 +49,7 @@ func boutHandler(bout string) int {
 
 func main() {
     
-    data, err := os.ReadFile("puzzle_input.txt")
+    data, err := os.ReadFile("../puzzle_input.txt")
 
     check(err)
 

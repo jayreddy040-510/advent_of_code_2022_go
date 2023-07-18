@@ -26,7 +26,7 @@ func main() {
     scoreMap["C X"] = 7
     scoreMap["C Y"] = 2
 
-    data, err := os.ReadFile("puzzle_input.txt")
+    data, err := os.ReadFile("../puzzle_input.txt")
 
     check(err)
 
