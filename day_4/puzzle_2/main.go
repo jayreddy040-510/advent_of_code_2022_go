@@ -55,19 +55,28 @@ func main() {
 	}
 	reader := bufio.NewReader(f)
 	count := 0
+	blah := 0
 
 	for {
 		line, err := reader.ReadString('\n')
 		line = strings.Trim(line, "\n")
+		x := strings.Split(line, ",")[0]
+		y := strings.Split(line, ",")[1]
+
 		if err != nil {
 			if err == io.EOF {
+				if lineHandler(x, y) {
+					count++
+				}
 				break
 			}
 			log.Fatal(err)
 		}
-		if lineHandler(strings.Split(line, ",")[0], strings.Split(line, ",")[1]) {
+		blah++
+		if lineHandler(x, y) {
 			count++
 		}
 	}
+
 	fmt.Println(count)
 }
