@@ -1,69 +1,60 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-    "os"
+	"os"
 	"strconv"
 	"strings"
-    "sort"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
-func maxGroupSum(filename string) int {
-	data, err := os.ReadFile(filename)
-	check(err)
-
-	// Convert byte slice to string
-	dataString := string(data)
-
-	// Split the string into groups
-	groups := strings.Split(dataString, "\n\n")
-
-	// Initialize maximum sum
-	maxSum := 0
-    
-    // Initialize slice of group counts
-    var allSums []int
-
-	// Iterate over the groups
-	for _, group := range groups {
-		// Split the group into numbers
-		numbers := strings.Split(strings.Trim(group, "\n"), "\n")
-
-		// Initialize group sum
-		groupSum := 0
-
-		// Iterate over the numbers and add them to the group sum
-		for _, numStr := range numbers {
-			num, err := strconv.Atoi(numStr)
-			check(err)
-			groupSum += num
-		}
-
-        allSums = append(allSums, groupSum)
-
-		// Update maximum sum if necessary
-		if groupSum > maxSum {
-			maxSum = groupSum
+func updateMaxSums(maxSums *[]int, sum int) {
+	if sum > (*maxSums)[2] {
+		(*maxSums)[2] = sum
+		if (*maxSums)[2] > (*maxSums)[1] {
+			(*maxSums)[2], (*maxSums)[1] = (*maxSums)[1], (*maxSums)[2]
+			if (*maxSums)[1] > (*maxSums)[0] {
+				(*maxSums)[1], (*maxSums)[0] = (*maxSums)[0], (*maxSums)[1]
+			}
 		}
 	}
-    sort.Ints(allSums)
-
-    return allSums[len(allSums) - 1] + allSums[len(allSums) - 2] + 
-    allSums[len(allSums) - 3]
 }
 
 func main() {
+	f, err := os.Open("../elves_and_their_calories.txt")
+	if err != nil {
+		fmt.Printf("error opening file: %s\n", err)
+		return
+	}
+	defer f.Close()
 
-	filename := "../elves_and_their_calories.txt"
+	var sum int
+	maxSums := []int{0, 0, 0}
 
-	fmt.Printf("The sum of the 3 highest calorie groups are %v\n",
-    maxGroupSum(filename))
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if line == "" {
+			updateMaxSums(&maxSums, sum)
+			sum = 0
+			continue
+		}
+
+		num, err := strconv.Atoi(strings.TrimSpace(line))
+		if err != nil {
+			fmt.Printf("error converting string to int: %v\n", err)
+			continue
+		}
+		sum += num
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("error reading file: %s\n", err)
+		return
+	}
+
+	updateMaxSums(&maxSums, sum)
+
+	fmt.Println(maxSums[0] + maxSums[1] + maxSums[2])
 }
-
-
