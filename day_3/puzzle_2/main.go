@@ -3,56 +3,62 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 
-	rr "github.com/jayreddy040-510/advent_of_code_2022_go/day_3/utils"
+	utils "github.com/jayreddy040-510/advent_of_code_2022_go/day_3/utils"
 )
 
-func rucksackMapMaker(r string) map[rune]bool {
-	retMap := make(map[rune]bool)
-	for _, char := range r {
-		retMap[char] = true
+var rucksackPrioMap = utils.MakePrioMaps()
+
+func findCommonItem(group *[3]string) (rune, error) {
+	// earlier used two sets but can instead use 1 set and flip the bool
+	set := make(map[rune]bool)
+
+	for _, ch := range group[0] {
+		set[ch] = true
 	}
-	return retMap
+	for _, ch := range group[1] {
+		if set[ch] {
+			set[ch] = false
+		}
+	}
+	for _, ch := range group[2] {
+		if val, exists := set[ch]; !val && exists {
+			return ch, nil
+		}
+	}
+	return -1, fmt.Errorf("Error finding common item among group of 3 elves: %v!", group)
 }
 
 func main() {
-	prioMap := rr.MakePrioMaps()
-	retArray := make([]rune, 0)
-	f, err := os.Open("../puzzle_input.txt")
+	file, err := os.Open("../puzzle_input.txt")
 	if err != nil {
-		fmt.Println(fmt.Errorf("error returned: %v", err))
+		log.Fatalf("Error opening puzzle input file: %v", err)
 	}
-	defer f.Close()
-	scanner := bufio.NewScanner(f)
-	count := 0
-	var mapOne map[rune]bool = make(map[rune]bool)
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var numElves int
+	var groupOfElves [3]string
+	var totalPrioScore int
 
 	for scanner.Scan() {
-		text := scanner.Text()
-		if count == 0 {
-			mapOne = rucksackMapMaker(text)
-		} else if count == 1 {
-			for k := range mapOne {
-				if _, ok := rucksackMapMaker(text)[k]; !ok {
-					delete(mapOne, k)
-				}
+		line := scanner.Text()
+		groupOfElves[numElves] = line
+		numElves++
+		if numElves == 3 {
+			commonItem, err := findCommonItem(&groupOfElves)
+			if err != nil {
+				log.Fatalf("%v", err)
 			}
-		} else if count == 2 {
-			for k := range mapOne {
-				if _, ok := rucksackMapMaker(text)[k]; ok {
-					retArray = append(retArray, k)
-				}
+			if points, exists := rucksackPrioMap[commonItem]; exists {
+				totalPrioScore += points
+			} else {
+				log.Fatalf("Weird error, commonItem not found in rucksackPrioMap")
 			}
-			mapOne = make(map[rune]bool)
-			count = -1
+			numElves = 0
 		}
-		count++
 	}
-
-	returnSum := 0
-	for _, char := range retArray {
-		returnSum += prioMap[char]
-	}
-	fmt.Println(len(retArray), returnSum)
+	log.Printf("Total points: %d", totalPrioScore)
 }
