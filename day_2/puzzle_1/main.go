@@ -1,43 +1,59 @@
 package main
 
 import (
-    "fmt"
-    "os"
-    "strings"
+	"bufio"
+	"log"
+	"os"
 )
 
-func check(e error) {
-    if e != nil {
-        panic(e)
-    }
+func rpsHandler(rps string) int {
+	var pts int
+	me, opp := rps[2], rps[0]
+
+	if me == 'X' {
+		pts += 1
+		if opp == 'A' {
+			pts += 3
+		} else if opp == 'C' {
+			pts += 6
+		}
+	} else if me == 'Y' {
+		pts += 2
+		if opp == 'A' {
+			pts += 6
+		} else if opp == 'B' {
+			pts += 3
+		}
+	} else if me == 'Z' {
+		pts += 3
+		if opp == 'B' {
+			pts += 6
+		} else if opp == 'C' {
+			pts += 3
+		}
+	}
+	return pts
 }
 
 func main() {
-    
-    scoreMap := make(map[string]int)
-    
-    scoreMap["A X"] = 4
-    scoreMap["B Y"] = 5
-    scoreMap["C Z"] = 6
-    scoreMap["A Y"] = 8
-    scoreMap["A Z"] = 3
-    scoreMap["B X"] = 1
-    scoreMap["B Z"] = 9
-    scoreMap["C X"] = 7
-    scoreMap["C Y"] = 2
+	file, err := os.Open("../puzzle_input.txt")
+	if err != nil {
+		log.Fatalf("Error reading puzzle input file: %v", err)
+	}
+	defer file.Close()
 
-    data, err := os.ReadFile("../puzzle_input.txt")
+	scanner := bufio.NewScanner(file)
+	var totalPts int
 
-    check(err)
+	for scanner.Scan() {
+		line := scanner.Text()
+		totalPts += rpsHandler(line)
+	}
 
-    dataString := string(data)
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("Error scanning puzzle input: %v", err)
+	}
 
-    sliceOfStrings := strings.Split(strings.Trim(dataString, "\n"), "\n")
+	log.Println(totalPts)
 
-    totalScore := 0
-
-    for _, bout := range sliceOfStrings {
-        totalScore += scoreMap[bout]
-    }
-    fmt.Printf("\n The projected score is: %d", totalScore)
 }
