@@ -1,45 +1,53 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
 	"os"
-	"strings"
 
-	rr "github.com/jayreddy040-510/advent_of_code_2022_go/day_3/utils"
+	utils "github.com/jayreddy040-510/advent_of_code_2022_go/day_3/utils"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
+var rucksackPrioMap = utils.MakePrioMaps()
 
-func main() {
+func findCommonItemInRucksack(rucksack string) (rune, error) {
+	midpoint := len(rucksack) / 2
+	set := make(map[rune]bool)
 
-	prioMap := rr.MakePrioMaps()
-	returnSum := 0
-	data, err := os.ReadFile("../puzzle_input.txt")
-	check(err)
-
-	dataString := string(data)
-
-	rucksackSlice := strings.Split(dataString, "\n")
-
-	for _, sack := range rucksackSlice {
-		firstCompartmentContents := make(map[rune]bool)
-		for i, char := range sack {
-			if i < len(sack)/2 {
-				firstCompartmentContents[char] = true
-			} else {
-				if firstCompartmentContents[char] {
-					// fmt.Println(string(char), prioMap[char])
-					returnSum += prioMap[char]
-					break
-				}
+	for idx, char := range rucksack {
+		if idx <= midpoint-1 {
+			set[char] = true
+		} else {
+			if set[char] {
+				return char, nil
 			}
 		}
 	}
+	return -1, fmt.Errorf("Couldn't find matching item in second compartment of rucksack: %s", rucksack)
+}
 
-	fmt.Println(returnSum)
+func main() {
+	file, err := os.Open("../puzzle_input.txt")
+	if err != nil {
+		log.Fatalf("Error opening puzzle input file: %v", err)
+	}
+	defer file.Close()
 
+	scanner := bufio.NewScanner(file)
+	var count int
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		commonItem, err := findCommonItemInRucksack(line)
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
+		count += rucksackPrioMap[commonItem]
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("Error scanning puzzle input: %v", err)
+	}
+	log.Printf("Final count: %d", count)
 }
