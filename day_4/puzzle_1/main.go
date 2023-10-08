@@ -44,11 +44,13 @@ func main() {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		if overlappingSection, err := isOverlap(line); overlappingSection && err == nil {
-			countOverlaps++
-		} else if err != nil {
+		overlappingSection, err := isOverlap(line)
+		if err != nil {
 			log.Fatalf("%v", err)
 		}
+        if overlappingSection {
+            countOverlaps++
+        }
 	}
 
 	if scanner.Err() != nil {

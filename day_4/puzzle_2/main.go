@@ -3,80 +3,62 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func lineHandler(a, b string) bool {
-	sliceA := strings.Split(a, "-")
-	sliceB := strings.Split(b, "-")
-
-	lowerA, err := strconv.Atoi(sliceA[0])
+func isOverlap(elves string) (bool, error) {
+	twoElvesGroup := strings.Split(elves, ",")
+	elfOne := strings.Split(twoElvesGroup[0], "-")
+	elfTwo := strings.Split(twoElvesGroup[1], "-")
+	elfOneLower, err := strconv.Atoi(elfOne[0])
 	if err != nil {
-		log.Fatal(err)
+		return false, fmt.Errorf("Error converting elf sections: %s into numbers: %v", elves, err)
 	}
-
-	lowerB, err := strconv.Atoi(sliceB[0])
+	elfOneUpper, err := strconv.Atoi(elfOne[1])
 	if err != nil {
-		log.Fatal(err)
+		return false, fmt.Errorf("Error converting elf sections: %s into numbers: %v", elves, err)
 	}
-
-	upperA, err := strconv.Atoi(sliceA[1])
+	elfTwoLower, err := strconv.Atoi(elfTwo[0])
 	if err != nil {
-		log.Fatal(err)
+		return false, fmt.Errorf("Error converting elf sections: %s into numbers: %v", elves, err)
 	}
-
-	upperB, err := strconv.Atoi(sliceB[1])
+	elfTwoUpper, err := strconv.Atoi(elfTwo[1])
 	if err != nil {
-		log.Fatal(err)
+		return false, fmt.Errorf("Error converting elf sections: %s into numbers: %v", elves, err)
 	}
-
-	if lowerA >= lowerB && lowerA <= upperB {
-		return true
-	} else if lowerB >= lowerA && lowerB <= upperA {
-		return true
-	} else if upperA >= lowerB && upperA <= upperB {
-		return true
-	} else if upperB >= lowerA && upperB <= upperA {
-		return true
-	} else {
-		return false
-	}
+	return (elfOneLower >= elfTwoLower && elfOneLower <= elfTwoUpper) ||
+		(elfOneUpper >= elfTwoLower && elfOneUpper <= elfTwoUpper) ||
+		(elfTwoLower >= elfOneLower && elfTwoLower <= elfOneUpper) ||
+		(elfTwoUpper >= elfOneLower && elfTwoUpper <= elfOneUpper), nil
 
 }
 
 func main() {
-	f, err := os.Open("../puzzle_input.txt")
+	file, err := os.Open("../puzzle_input.txt")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error opening puzzle input file: %v", err)
 	}
-	reader := bufio.NewReader(f)
-	count := 0
-	blah := 0
+	defer file.Close()
 
-	for {
-		line, err := reader.ReadString('\n')
-		line = strings.Trim(line, "\n")
-		x := strings.Split(line, ",")[0]
-		y := strings.Split(line, ",")[1]
+	scanner := bufio.NewScanner(file)
+	var countOverlaps int
 
-		if err != nil {
-			if err == io.EOF {
-				if lineHandler(x, y) {
-					count++
-				}
-				break
-			}
-			log.Fatal(err)
-		}
-		blah++
-		if lineHandler(x, y) {
-			count++
+	for scanner.Scan() {
+		line := scanner.Text()
+		if overlappingSection, err := isOverlap(line); overlappingSection && err == nil {
+			countOverlaps++
+		} else if err != nil {
+			log.Fatalf("%v", err)
 		}
 	}
 
-	fmt.Println(count)
+	if scanner.Err() != nil {
+		log.Fatalf("Error scanning puzzle input: %v", err)
+	}
+
+	log.Printf("Num overlaps: %d", countOverlaps)
+
 }
